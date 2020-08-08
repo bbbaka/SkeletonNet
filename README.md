@@ -38,4 +38,4 @@ year = {2019}
 ```
 
 ### Contact 
-If you have any questions,  please feel free to contact with Tang Jiapeng ```shell msjptang@mail.scut.edu.cn``.
+If you have any questions,  please feel free to contact with Tang Jiapeng msjptang@mail.scut.edu.cn.
