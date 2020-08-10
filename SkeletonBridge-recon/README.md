@@ -71,5 +71,5 @@ python volume_gen/gen_end2end.py --category all --model $model_end2end --th $thr
 You can download the pretrained model from [here](https://drive.google.com/file/d/1I5QmNDhuJu4Er2VKN7mZ7uzJjnu8gQqn/view?usp=sharing), and put it under the ```checkpoints/all``` folder.
 * Run the demo by the below scrript:
 ```shell 
-python demo/demo.py --model checkpoints/all/SkeletonNet.pt --woptfeat --save_mesh --save_ske --inpimg your image path```
+python demo/demo.py --model checkpoints/all/SkeletonNet.pt --woptfeat --save_mesh --save_ske --inpimg your image path
 ```
