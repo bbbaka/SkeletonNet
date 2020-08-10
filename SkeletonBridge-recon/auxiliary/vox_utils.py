@@ -8,7 +8,7 @@ import time
 import torch.nn.functional as F
 import sys
 #dirname = os.path.dirname(__file__)
-sys.path.append(os.path.join('..', '..', 'data'))
+sys.path.append(os.path.join('..', 'data'))
 from voxel2layer import holefill_cpu
 from voxel2layer_torch import holefill_gpu
 
@@ -42,7 +42,7 @@ def eval_iou_pre_rec(prediction, groudtruth, th=0.4):
 def combine_patches(batch_size, output, npatch=4, patch_res=36, padding=2, vx_res=128):
     npatch2 = npatch * npatch
     npatch3 = npatch * npatch * npatch
-    mul = vx_res / npatch
+    mul = int(vx_res / npatch)
 
     output_softmax = F.softmax(output, dim=1)
     output_softmax = output_softmax.reshape(batch_size, npatch3, 2, patch_res, patch_res, patch_res)
@@ -50,9 +50,9 @@ def combine_patches(batch_size, output, npatch=4, patch_res=36, padding=2, vx_re
         dtype=torch.float,device=output.device)
     count = torch.zeros((batch_size, vx_res+2*padding, vx_res+2*padding, vx_res+2*padding), \
         dtype=torch.float,device=output.device)
-    for i in xrange(npatch):
-        for j in xrange(npatch):
-            for k in xrange(npatch):
+    for i in range(npatch):
+        for j in range(npatch):
+            for k in range(npatch):
                 x1, x2 = i * mul, i * mul + patch_res
                 y1, y2 = j * mul, j * mul + patch_res
                 z1, z2 = k * mul, k * mul + patch_res
@@ -101,12 +101,11 @@ def save_voxel_h5py(voxels, outfile):
     f1.close()
     print(outfile, voxels.shape)
 
-import mcubes
 sys.path.append('external')
 import libmcubes
 import libsimplify
 import trimesh
-def save_volume_obj(outdir, catname, modname, pred, gt, holefill=True, save_gt_obj=True):
+def save_volume_obj(outdir, catname, modname, pred, gt, holefill=True, save_gt_obj=False):
     #save pred.obj
     outdir_cat = os.path.join(outdir, catname)
     if not os.path.exists(outdir_cat):
@@ -140,9 +139,10 @@ def save_volume_obj(outdir, catname, modname, pred, gt, holefill=True, save_gt_o
         voxels = gt.cpu().numpy().astype('bool')
         n_x, n_y, n_z = voxels.shape
         voxels = np.pad(voxels, (1, 1), 'constant', constant_values=(0, 0))
-        vertices, triangles = mcubes.marching_cubes(voxels, 0.5)
+        vertices, triangles = libmcubes.marching_cubes(voxels, 0.5)
         vertices = (vertices-0.5)/ n_x - 0.5
-        mcubes.export_obj(vertices, triangles, objfile)
+        mesh = trimesh.Trimesh(vertices, triangles, vertex_normals=None, process=False)
+        #mesh.export(objfile)
 
         objfile = os.path.join(outdir_cat, modname+'_gt_simplify.obj')
         mesh = libsimplify.simplify_mesh(mesh, 10000)

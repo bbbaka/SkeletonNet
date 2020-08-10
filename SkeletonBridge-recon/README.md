@@ -21,7 +21,9 @@ bash scripts/all/ae_cursur.sh
 ```
 
 2. SkeSVR: Skeletal points generation from single RGB images
-```shell bash scripts/all/svr_cursur.sh```
+```shell 
+bash scripts/all/svr_cursur.sh
+```
 
 3. SkeVolume: Skeletal volume refinement from initial skeletal points
 ```shell 
@@ -66,7 +68,7 @@ python volume_gen/gen_end2end.py --category all --model $model_end2end --th $thr
 
 ### Demo
 * We provide a demo for skeletal volume generation from RGB images via learning immediate skeletal points.
-You can download the pretrained model from [here](https://drive.google.com/file/d/1ytV4lZt6W1rHbuXxCNOIZPYUjC-nnmHr/view?usp=sharing), and put it under the ```checkpoints/all``` folder.
+You can download the pretrained model from [here](https://drive.google.com/file/d/1I5QmNDhuJu4Er2VKN7mZ7uzJjnu8gQqn/view?usp=sharing), and put it under the ```checkpoints/all``` folder.
 * Run the demo by the below scrript:
 ```shell 
 python demo/demo.py --model checkpoints/all/SkeletonNet.pt --woptfeat --save_mesh --save_ske --inpimg your image path```

@@ -60,15 +60,15 @@ def crop_global_local_patches(indices_array, occupany64_softmax_padding, feat_ce
     for b_idx in range(indices_array.shape[0]):
         for p_idx in range(indices_array.shape[1]):
             patch_idx = indices_array[b_idx, p_idx]
-            i, j, k = patch_idx/16, (patch_idx%16)/4, patch_idx%4
-            glo_x_start, glo_x_end = i*glo_mul, i*glo_mul+glo_pch_res
-            glo_y_start, glo_y_end = j*glo_mul, j*glo_mul+glo_pch_res
-            glo_z_start, glo_z_end = k*glo_mul, k*glo_mul+glo_pch_res
-            global_patches.append(occupany64_softmax_padding[b_idx:b_idx+1, :, glo_x_start:glo_x_end, glo_y_start:glo_y_end, glo_z_start: glo_z_end])
-            loc_x_start, loc_x_end = i*loc_mul, i*loc_mul+loc_pch_res
-            loc_y_start, loc_y_end = j*loc_mul, j*loc_mul+loc_pch_res
-            loc_z_start, loc_z_end = k*loc_mul, k*loc_mul+loc_pch_res
-            local_patches.append(feat_cell128_padding[b_idx:b_idx+1, :, loc_x_start:loc_x_end, loc_y_start:loc_y_end, loc_z_start:loc_z_end])
+            i, j, k = int(patch_idx/16), int((patch_idx%16)/4), int(patch_idx%4)
+            glo_x_start, glo_x_end = int(i*glo_mul), int(i*glo_mul+glo_pch_res)
+            glo_y_start, glo_y_end = int(j*glo_mul), int(j*glo_mul+glo_pch_res)
+            glo_z_start, glo_z_end = int(k*glo_mul), int(k*glo_mul+glo_pch_res)
+            global_patches.append(occupany64_softmax_padding[b_idx:b_idx+1, 0:, glo_x_start:glo_x_end, glo_y_start:glo_y_end, glo_z_start: glo_z_end])
+            loc_x_start, loc_x_end = int(i*loc_mul), int(i*loc_mul+loc_pch_res)
+            loc_y_start, loc_y_end = int(j*loc_mul), int(j*loc_mul+loc_pch_res)
+            loc_z_start, loc_z_end = int(k*loc_mul), int(k*loc_mul+loc_pch_res)
+            local_patches.append(feat_cell128_padding[b_idx:b_idx+1, 0:, loc_x_start:loc_x_end, loc_y_start:loc_y_end, loc_z_start:loc_z_end])
     global_patches = torch.cat(global_patches, 0).contiguous()
     local_patches = torch.cat(local_patches, 0).contiguous()
     return global_patches, local_patches
@@ -77,14 +77,14 @@ def crop_global_local_patches(indices_array, occupany64_softmax_padding, feat_ce
 def padding_occupancy64_softmax(occupany64_softmax, padding16):
     occupany64_softmax_padding = torch.zeros((occupany64_softmax.size(0), occupany64_softmax.size(1), \
         64+2*padding16, 64+2*padding16, 64+2*padding16), dtype=occupany64_softmax.dtype, device=occupany64_softmax.device)
-    occupany64_softmax_padding[:, :, padding16:-padding16, padding16:-padding16, padding16:-padding16] = occupany64_softmax
+    occupany64_softmax_padding[0:, 0:, padding16:-padding16, padding16:-padding16, padding16:-padding16] = occupany64_softmax
     return occupany64_softmax_padding
 ####
 #### Padding featcell128
 def padding_featcell128(feat_cell128, padding32):
     feat_cell128_padding = torch.zeros((feat_cell128.size(0), feat_cell128.size(1), \
         128+2*padding32, 128+2*padding32, 128+2*padding32), dtype=feat_cell128.dtype, device=feat_cell128.device)
-    feat_cell128_padding[:, :, padding32:-padding32, padding32:-padding32, padding32:-padding32] = feat_cell128
+    feat_cell128_padding[0:, 0:, padding32:-padding32, padding32:-padding32, padding32:-padding32] = feat_cell128
     return feat_cell128_padding
 ####
 ####Grid Pooling 32

@@ -38,24 +38,6 @@ mcubes_module = Extension(
     include_dirs=[numpy_include_dir]
 )
 
-# triangle hash (efficient mesh intersection)
-triangle_hash_module = Extension(
-    'external.libmesh.triangle_hash',
-    sources=[
-        'external/libmesh/triangle_hash.pyx'
-    ],
-    libraries=['m'],  # Unix-like specific
-    include_dirs=[numpy_include_dir]
-)
-
-# mise (efficient mesh extraction)
-mise_module = Extension(
-    'external.libmise.mise',
-    sources=[
-        'external/libmise/mise.pyx'
-    ],
-)
-
 # simplify (efficient mesh simplification)
 simplify_mesh_module = Extension(
     'external.libsimplify.simplify_mesh',
@@ -65,23 +47,11 @@ simplify_mesh_module = Extension(
     include_dirs=[numpy_include_dir]
 )
 
-# voxelization (efficient mesh voxelization)
-voxelize_module = Extension(
-    'external.libvoxelize.voxelize',
-    sources=[
-        'external/libvoxelize/voxelize.pyx'
-    ],
-    libraries=['m']  # Unix-like specific
-)
-
 # Gather all extension modules
 ext_modules = [
     pykdtree,
     mcubes_module,
-    triangle_hash_module,
-    mise_module,
     simplify_mesh_module,
-    voxelize_module
  ]
 
 setup(

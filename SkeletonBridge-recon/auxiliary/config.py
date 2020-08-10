@@ -1,4 +1,4 @@
-sROOT_IMG = "/data/tang.jiapeng/ShapeNetAllRaw/ShapeNetRendering"
+ROOT_IMG = "/data/tang.jiapeng/ShapeNetAllRaw/ShapeNetRendering"
 ROOT_PC = "/data/tang.jiapeng/ShapeNetAllRaw/ShapeNetV1_surface_skeleton"
 ROOT_VOL = "/data/tang.jiapeng/ShapeNetAllRaw/ShapeNetV1_skeleal_volume"
 SYNSET_PATH = "../data/synsetoffset2category.txt"

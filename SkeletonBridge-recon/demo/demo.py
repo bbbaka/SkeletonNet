@@ -43,12 +43,12 @@ parser.add_argument('--model_vol', type=str, default = '', help='Volume Refinmen
 parser.add_argument('--model', type=str, default = '', help='whole network')
 parser.add_argument('--super_points', type=int, default = 5000,  help='number of skeleton points')
 parser.add_argument('--bottleneck_size', type=int, default=512, help='bottleneck_size')
-parser.add_argument('--num_points_line', type=int, default = 4600,  help='number of curve points')
+parser.add_argument('--num_points_line', type=int, default = 600,  help='number of curve points')
 parser.add_argument('--nb_primitives_line', type=int, default = 20,  help='number of primitives')
-parser.add_argument('--num_points_square', type=int, default = 26000,  help='number of sheet points')
+parser.add_argument('--num_points_square', type=int, default = 2000,  help='number of sheet points')
 parser.add_argument('--nb_primitives_square', type=int, default = 20,  help='number of primitives')
-parser.add_argument('--samples_line', type=int, default = 0,  help='number of sampled points in liness')
-parser.add_argument('--samples_triangle', type=int, default = 0,  help='number of sampled points in triangle')
+parser.add_argument('--samples_line', type=int, default = 4000,  help='number of sampled points in liness')
+parser.add_argument('--samples_triangle', type=int, default = 24000,  help='number of sampled points in triangle')
 parser.add_argument('--patch_res1', type=int, default = 36, help='the resolution of patch')
 parser.add_argument('--patch_res2', type=int, default = 72, help='the resolution of patch')
 parser.add_argument('--patch_num', type=int, default = 64, help='the number of patch for training')
@@ -143,34 +143,33 @@ if opt.save_mesh or opt.save_ske:
 
 network.eval()
 with torch.no_grad():
-    if len((opt.inpimg).split('_'))==3:
-        t0=time.time()
-        inpimg = opt.inpimg
-        img, points_skeleton, points_line, points_square, voxelGT32, voxelGT64, voxelGT128, voxelGT256 = fetch_data(inpimg)
-        indices_array = []
-        for bidx in range(img.size(0)):
-            choices = np.arange(opt.patch_num)
-            indices_array.append(choices)
-        indices_array = np.stack(indices_array, axis=0)
+    t0=time.time()
+    inpimg = opt.inpimg
+    img, points_skeleton, points_line, points_square, voxelGT32, voxelGT64, voxelGT128, voxelGT256 = fetch_data(inpimg)
+    indices_array = []
+    for bidx in range(img.size(0)):
+        choices = np.arange(opt.patch_num)
+        indices_array.append(choices)
+    indices_array = np.stack(indices_array, axis=0)
 
-        img = img.cuda()
-        points_line = points_line.cuda()
-        points_square = points_square.cuda()
-        voxelGT32 = voxelGT32.cuda()
-        voxelGT64 = voxelGT64.cuda()
-        voxelGT128 = voxelGT128.cuda()
-        voxelGT256 = voxelGT256.cuda()
+    img = img.cuda()
+    points_line = points_line.cuda()
+    points_square = points_square.cuda()
+    voxelGT32 = voxelGT32.cuda()
+    voxelGT64 = voxelGT64.cuda()
+    voxelGT128 = voxelGT128.cuda()
+    voxelGT256 = voxelGT256.cuda()
 
-        pointsReconstructed_cur, pointsReconstructed_sur, occupany32, occupany64, occupancy_patch36, occupancy_patch72 = network(img, indices_array)
-        pointsReconstructed = torch.cat([pointsReconstructed_cur, pointsReconstructed_sur], 1)
-        prediction128, batch_iou128 = eval_iou_res128(1, occupancy_patch36, voxelGT128, opt.th)
-        prediction256, batch_iou256, batch_pre, batch_rec = eval_iou_pre_rec_res256(1, occupancy_patch72, voxelGT256, opt.th)
+    pointsReconstructed_cur, pointsReconstructed_sur, occupany32, occupany64, occupancy_patch36, occupancy_patch72 = network(img, indices_array)
+    pointsReconstructed = torch.cat([pointsReconstructed_cur, pointsReconstructed_sur], 1)
+    prediction128, batch_iou128 = eval_iou_res128(1, occupancy_patch36, voxelGT128, opt.th)
+    prediction256, batch_iou256, batch_pre, batch_rec = eval_iou_pre_rec_res256(1, occupancy_patch72, voxelGT256, opt.th)
 
-        if opt.save_mesh:
-            save_volume_obj(outdir, 'demo_basemesh', prediction256[0], voxelGT256[0], holefill=True)
-        if opt.save_ske:
-            save_skeleton_ply(outdir, './', 'CurSke', pointsReconstructed_cur[0])
-            save_skeleton_ply(outdir, './','SurSke', pointsReconstructed_sur[0])
-            save_skeleton_ply(outdir, './', 'AllSke', pointsReconstructed[0])
+    if opt.save_mesh:
+        save_volume_obj(outdir, './', 'demo_basemesh', prediction256[0], voxelGT256[0], holefill=True)
+    if opt.save_ske:
+        save_skeleton_ply(outdir, './', 'CurSke', pointsReconstructed_cur[0])
+        save_skeleton_ply(outdir, './','SurSke', pointsReconstructed_sur[0])
+        save_skeleton_ply(outdir, './', 'AllSke', pointsReconstructed[0])
 
-        print(opt.inpimg, time.time()-t0)
+    print(opt.inpimg, time.time()-t0)
